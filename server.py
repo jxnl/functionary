@@ -9,6 +9,7 @@ from openai_types import ChatCompletion, ChatInput, Choice
 
 app = FastAPI(title="Functionary API")
 
+
 @app.post("/v1/chat/completions", response_model=ChatCompletion)
 async def chat_endpoint(chat_input: ChatInput):
     response_message = generate_models(

@@ -31,38 +31,59 @@ def prepare_message_for_model(message, tokenizer):
 
     if message["role"] == "system":
         text = "system:\n{content}\n".format(content=message.get("content", ""))
-        input_ids = tokenizer(text, add_special_tokens=False, return_tensors="pt").input_ids
-        targets = create_target_tensors(input_ids, ignore_from=0, ignore_to=len(input_ids[0]))
+        input_ids = tokenizer(
+            text, add_special_tokens=False, return_tensors="pt"
+        ).input_ids
+        targets = create_target_tensors(
+            input_ids, ignore_from=0, ignore_to=len(input_ids[0])
+        )
 
     elif message["role"] == "function":
-        text = "function name={name}:\n{content}\n".format(name=message.get("name", ""),
-                                                           content=message.get("content", ""))
-        input_ids = tokenizer(text, add_special_tokens=False, return_tensors="pt").input_ids
-        targets = create_target_tensors(input_ids, ignore_from=0, ignore_to=len(input_ids[0]))
+        text = "function name={name}:\n{content}\n".format(
+            name=message.get("name", ""), content=message.get("content", "")
+        )
+        input_ids = tokenizer(
+            text, add_special_tokens=False, return_tensors="pt"
+        ).input_ids
+        targets = create_target_tensors(
+            input_ids, ignore_from=0, ignore_to=len(input_ids[0])
+        )
 
     elif message["role"] == "user" and message.get("content") is None:
         text = "user:\n</s>"
-        input_ids = tokenizer(text, add_special_tokens=False, return_tensors="pt").input_ids
+        input_ids = tokenizer(
+            text, add_special_tokens=False, return_tensors="pt"
+        ).input_ids
         targets = create_target_tensors(input_ids)
 
     elif message["role"] == "user":
         text = "user:\n</s>{content}\n".format(content=message.get("content", ""))
-        input_ids = tokenizer(text, add_special_tokens=False, return_tensors="pt").input_ids
+        input_ids = tokenizer(
+            text, add_special_tokens=False, return_tensors="pt"
+        ).input_ids
         targets = create_target_tensors(input_ids, ignore_from=4)
 
     elif message["role"] == "assistant" and message.get("to") is not None:
-        text = "assistant to={to}:\n{content}</s>".format(to=message.get("to", ""), content=message.get("content", ""))
-        input_ids = tokenizer(text, add_special_tokens=False, return_tensors="pt").input_ids
+        text = "assistant to={to}:\n{content}</s>".format(
+            to=message.get("to", ""), content=message.get("content", "")
+        )
+        input_ids = tokenizer(
+            text, add_special_tokens=False, return_tensors="pt"
+        ).input_ids
         targets = create_target_tensors(input_ids)
 
     elif message["role"] == "assistant" and message.get("content") is None:
         text = "assistant"
-        input_ids = tokenizer(text, add_special_tokens=False, return_tensors="pt").input_ids
+        input_ids = tokenizer(
+            text, add_special_tokens=False, return_tensors="pt"
+        ).input_ids
         targets = create_target_tensors(input_ids)
 
     elif message["role"] == "assistant":
         text = "assistant:\n{content}\n".format(content=message.get("content", ""))
-        input_ids = tokenizer(text, add_special_tokens=False, return_tensors="pt").input_ids
+        input_ids = tokenizer(
+            text, add_special_tokens=False, return_tensors="pt"
+        ).input_ids
         targets = create_target_tensors(input_ids)
 
     return text, input_ids, targets
@@ -70,7 +91,8 @@ def prepare_message_for_model(message, tokenizer):
 
 def prepare_messages_for_model(messages, tokenizer):
     """Prepares a list of messages for the model by calling `prepare_message_for_model` function on each of them and
-    concatenating the returned input_ids and targets. Also, the function merges the text of the messages."""
+    concatenating the returned input_ids and targets. Also, the function merges the text of the messages.
+    """
     all_texts = []
     all_input_ids = []
     all_targets = []
@@ -142,7 +164,9 @@ class ModelArguments:
 
 @dataclass
 class DataArguments:
-    data_path: str = field(default=None, metadata={"help": "Path to the training data."})
+    data_path: str = field(
+        default=None, metadata={"help": "Path to the training data."}
+    )
 
 
 @dataclass
@@ -151,7 +175,9 @@ class TrainingArguments(transformers.TrainingArguments):
     optim: str = field(default="adamw_torch")
     model_max_length: int = field(
         default=4096,
-        metadata={"help": "Maximum sequence length. Sequences will be right padded (and possibly truncated)."},
+        metadata={
+            "help": "Maximum sequence length. Sequences will be right padded (and possibly truncated)."
+        },
     )
 
 
@@ -162,6 +188,7 @@ def safe_save_model_for_hf_trainer(trainer: transformers.Trainer, output_dir: st
         cpu_state_dict = {key: value.cpu() for key, value in state_dict.items()}
         del state_dict
         trainer._save(output_dir, state_dict=cpu_state_dict)  # noqa
+
 
 def train():
     argument_parser = transformers.HfArgumentParser(
@@ -183,7 +210,6 @@ def train():
     # See: https://github.com/facebookresearch/llama-recipes/blob/83fde7b94bd47e402731bfcf491beaf9950d2929/llama_finetuning.py#L111
     tokenizer.add_special_tokens(
         {
-
             "pad_token": "<PAD>",
         }
     )
